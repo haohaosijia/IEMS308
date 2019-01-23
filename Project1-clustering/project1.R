@@ -36,8 +36,8 @@ state.NPI = count(NPI, "state")
 
 #merge
 state <-data.frame (state.NPI, state.service["service"],
-                    state.allow["allow"], state.submit["submit"],
-                    state.standardized["standardized"])
+                    average_allow, average_submit,
+                    average_standardized)
 
 # calculate the Medicare fee cover rate
 state$Medicare_fee_cover_rate <- state.standardized$standardized / state.submit$submit
