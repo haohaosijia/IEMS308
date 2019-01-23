@@ -1,0 +1,173 @@
+> library(plyr)
+> library(cluster)
+> library(ggplot2)
+> library(gcookbook)
+> library(caret)
+> library(MASS)
+> library(HSAUR2)
+> library(factoextra)
+> library(sjPlot)
+> library(fpc)
+> # import the data
+> data2 <-read.csv(file.choose())
+> # rename columns we need to simplify
+> names(data2)[1] <- "NPI"
+> names(data2)[12] <- "state"
+> names(data2)[20] <- "service"
+> names(data2)[23] <- "allow"
+> names(data2)[24] <- "submit"
+> names(data2)[26] <- "standardized"
+> # aggregat features by states
+> state.service <-aggregate(service ~ state, data = data2, sum)
+> state.allow <-aggregate(allow ~ state, data = data2, sum)
+> state.submit <-aggregate(submit ~ state, data = data2, sum)
+> state.standardized <-aggregate(standardized ~ state, data = data2, sum)
+> # calculate the total allow, submit and standardized amount.
+> average_allow <-state.allow["allow"] / state.service["service"]
+> average_submit <-state.submit["submit"] / state.service["service"]
+> average_standardized <-state.standardized["standardized"] / state.service["service"]
+> #delete duplication of NPI
+> NPI =data2[!duplicated(data2[,c(1)]),]
+> state.NPI = count(NPI, "state")
+> #merge
+> state <-data.frame (state.NPI, state.service["service"],
++                     average_allow, average_submit,
++                     average_standardized)
+> # calculate the Medicare fee cover rate
+> state$Medicare_fee_cover_rate <- state.standardized$standardized / state.submit$submit
+> #delete states not in U.S.A
+> state <-state[-c(1,2,5,7,16,31,46,54,60,61),]
+> names(state)[2] <- "provider"
+> # histogram
+> par(mfrow=c(2,3))
+> ggplot(state,  aes(x=provider)) + 
++   geom_histogram(stat="bin", fill="lightblue", colour="black" ) + 
++   labs(x="Number of Providers", y="Frequency", title="Frequency of Providers in States")
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+> ggplot(state,  aes(x=service)) + 
++   geom_histogram(stat="bin", fill="lightblue", colour="black" ) + 
++   labs(x="Number of Service", y="Frequency", title="Frequency of Service in States")
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+> ggplot(state,  aes(x=allow)) + 
++   geom_histogram(stat="bin", fill="lightblue", colour="black" ) + 
++   labs(x="Average Amount of Allow", y="Frequency", title="Frequency of Average Amount of Allow in States")
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+> ggplot(state,  aes(x=submit)) + 
++   geom_histogram(stat="bin", fill="lightblue", colour="black" ) + 
++   labs(x="Average Amount of Submit", y="Frequency", title="Frequency of Average Amount of Submit in States")
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+> ggplot(state,  aes(x=standardized)) + 
++   geom_histogram(stat="bin", fill="lightblue", colour="black" ) + 
++   labs(x="Average Amount of Standardized", y="Frequency", title="Frequency of Average Amount of Standardized in States")
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+> # exclude outliers
+> rownames(state)<-NULL
+> state <-state[-c(5,10,35,44),]
+> rownames(state)<-NULL
+> structure(state)
+   state provider   service     allow    submit standardized Medicare_fee_cover_rate
+1     AK     2359   2845952 0.7365152 3.5814176    0.4606400               0.1286195
+2     AL    14069  59884756 0.2743518 0.8473380    0.2288703               0.2701050
+3     AR     8344  29493651 0.3062169 0.9019665    0.2573867               0.2853617
+4     AZ    19447  57484291 0.3828352 1.1672406    0.2978974               0.2552150
+5     CO    16058  27093302 0.5270983 1.7332272    0.4039687               0.2330731
+6     CT    15020  24841615 0.5354917 1.8453372    0.3897700               0.2112189
+7     DC     3168   3730563 0.8181752 2.4810040    0.5721464               0.2306108
+8     DE     3734   8101694 0.5096649 1.7043445    0.3868954               0.2270054
+9     GA    27109  72343778 0.3899717 1.4826617    0.3119769               0.2104168
+10    HI     3334   4939179 0.4848954 1.3559450    0.3552684               0.2620080
+11    IA    10838  19768645 0.4450270 1.4641827    0.3667513               0.2504819
+12    ID     4911   5692974 0.6294250 1.9141907    0.5138977               0.2684674
+13    IL    41528  94157893 0.4196816 1.5580909    0.3148433               0.2020699
+14    IN    20594  45535202 0.4612117 1.6772846    0.3749358               0.2235374
+15    KS    10321  28151883 0.3590366 1.1610762    0.2940260               0.2532357
+16    KY    15051  32825153 0.4036467 1.2476185    0.3326452               0.2666241
+17    LA    13957  28997734 0.4756490 1.7216899    0.3814333               0.2215459
+18    MA    31761  52228024 0.4896933 1.6589118    0.3682477               0.2219815
+19    MD    20985  55607983 0.4388815 1.2842140    0.3227287               0.2513045
+20    ME     6342   9359430 0.4409670 1.3238038    0.3496501               0.2641253
+21    MI    36764  74385086 0.4381797 1.2996485    0.3436669               0.2644307
+22    MN    21566  19660393 0.6357474 1.9841214    0.5031361               0.2535813
+23    MO    20098  46456483 0.4229371 1.4404577    0.3387369               0.2351592
+24    MS     8129  25525402 0.3532785 1.3334720    0.2969712               0.2227053
+25    MT     3844   4502062 0.6703841 1.8706657    0.5067253               0.2708797
+26    NC    33202  90430511 0.3480323 1.2389736    0.2808451               0.2266756
+27    ND     3249   3883004 0.5459453 1.6890046    0.4272483               0.2529586
+28    NE     7188  16294649 0.4058456 1.3160244    0.3364111               0.2556268
+29    NH     5997   6968565 0.6953004 2.8981248    0.5285514               0.1823770
+30    NJ    31001 108705716 0.3344042 1.2134780    0.2415098               0.1990228
+31    NM     5858   9391237 0.4507187 1.4799735    0.3534893               0.2388484
+32    NV     6680  20854547 0.4053861 1.5313474    0.3061151               0.1998992
+33    OH    40203  74017656 0.4623183 1.4716912    0.3692012               0.2508686
+34    OK    11177  29283000 0.3864297 1.1950199    0.3174203               0.2656192
+35    OR    12168  18670206 0.5123440 1.6235045    0.3967613               0.2443857
+36    PA    50757  87673606 0.4928008 1.5431897    0.3817348               0.2473674
+37    RI     4482   7399917 0.4562694 1.3536246    0.3463751               0.2558871
+38    SC    14692  47753111 0.3289726 1.2016272    0.2688695               0.2237545
+39    SD     3635   4683118 0.6226951 1.9108633    0.4945802               0.2588255
+40    TN    23228  69287932 0.3346918 1.1628540    0.2784919               0.2394900
+41    UT     7179  10968569 0.5635465 1.6526688    0.4444815               0.2689477
+42    VA    24515  62485428 0.4113795 1.3278803    0.3178991               0.2394035
+43    VT     2842   4755592 0.3437824 1.1956974    0.2661421               0.2225831
+44    WA    23327  37272682 0.5181736 1.5266734    0.3961335               0.2594749
+45    WI    21538  26426700 0.5818116 3.2936176    0.4660915               0.1415135
+46    WV     6526  13026036 0.4159769 1.3265268    0.3364908               0.2536631
+47    WY     1877   3238293 0.4512878 1.6651195    0.3433943               0.2062280
+> # data preprocessing
+> # normlization
+> state$allow <- state$allow * state$service
+> state_scale <-scale(state[,-c(1)])
+> # SSE find the best K
+> sjc.elbow(state_scale[,c(1:3)], steps = 15, show.diff = FALSE)
+> # Gap Statistic find K
+> clusGap(state_scale[,c(1:3)], kmeans, 10, B = 47, verbose = interactive())
+Clustering k = 1,2,..., K.max (= 10): .. done
+Bootstrapping, b = 1,2,..., B (= 47)  [one "." per sample]:
+............................................... 47 
+Clustering Gap statistic ["clusGap"] from call:
+clusGap(x = state_scale[, c(1:3)], FUNcluster = kmeans, K.max = 10,     B = 47, verbose = interactive())
+B=47 simulated reference sets, k = 1..10; spaceH0="scaledPCA"
+ --> Number of clusters (method 'firstSEmax', SE.factor=1): 4
+          logW   E.logW       gap     SE.sim
+ [1,] 3.093023 3.265810 0.1727870 0.05810439
+ [2,] 2.527987 2.748225 0.2202385 0.04662630
+ [3,] 2.172485 2.505922 0.3334372 0.04673190
+ [4,] 1.846961 2.358363 0.5114022 0.04631635
+ [5,] 1.731426 2.252058 0.5206317 0.04896303
+ [6,] 1.656919 2.150735 0.4938166 0.05352877
+ [7,] 1.506047 2.054040 0.5479931 0.06209327
+ [8,] 1.552146 1.971591 0.4194447 0.05459467
+ [9,] 1.528418 1.898396 0.3699784 0.06247210
+[10,] 1.194489 1.830643 0.6361543 0.07302948
+> # K means clustering
+> k_mean = kmeans(state_scale[,c(1:3)], 4)
+> state_scale <- as.data.frame(state_scale)
+> k_mean$cluster <- factor(k_mean$cluster)
+> ggplot() + geom_point(data = state_scale,aes(x = Medicare_fee_cover_rate,y = provider,col=k_mean$cluster),size=6)+
++   geom_point(data = state_scale,aes(x = Medicare_fee_cover_rate,y = service,colour=k_mean$cluster),size=6)+
++   geom_point(data = state_scale,aes(x = Medicare_fee_cover_rate,y = allow,col=k_mean$cluster),size=6) +
++   labs( y="Range")
+> k_mean$cluster
+ [1] 3 2 1 2 1 1 3 3 2 3 1 3 4 2 1 1 1 2 2 3 4 1 2 1 3 4 3 3 3 4 3 3 4 1 1 4 3 1 3 2 3 2 3 2 1
+[46] 3 3
+Levels: 1 2 3 4
+> k_mean$centers
+    provider    service      allow
+1 -0.1307324 -0.2146102 -0.1954553
+2  0.5961343  0.7657158  0.7325880
+3 -0.8892286 -0.8996402 -0.9112680
+4  1.9573822  1.8877164  1.9363105
+> k_mean$size
+[1] 13 10 18  6
+> # asses the quality of my clustering
+dis <- dist(state_scale[,c(1:3)])
+sil <- silhouette (k_mean$cluster, dis)
+> summary(sil)
+Silhouette of 47 units in 4 clusters from silhouette.default(x = k_mean$cluster, dist = dis) :
+ Cluster sizes and average silhouette widths:
+       18         6        12        11 
+0.7215687 0.4958984 0.4773865 0.3713775 
+Individual silhouette widths:
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-0.03354  0.38718  0.58846  0.54846  0.75872  0.82699 
+plot(sil)
