@@ -1,11 +1,18 @@
-### Executive summary:
-In this case, we divide three required question in four different questions as “Which companies went bankrupt in month X of year Y?”, “What affects GDP?”, “What percentage of drop or increase is associated with this property?” and “Who is the CEO of company X?”. Different kinds of questions have different preprocess steps.
+# Executive summary:
+
+In this case, we divide three required questions in four different questions as “Which companies went bankrupt in month X of year Y?”, “What affects GDP?”, “What percentage of drop or increase is associated with this property?” and “Who is the CEO of company X?”. Different kinds of questions have different preprocess steps.
+
 Then we use method of cosine similarity as question classifier, Elasticsearch as document selection and information retrieval. For the NER, we use the NLTK package because our own NER classifier do not perform well in project3.
+
 When using this system, just input the question and then the program will give you the answer.
-Question Classifier:
+
+# Question Classifier:
+
 We set up four types of question and the question we raised as vector. Remove punctuation and do stemming. After that, we set up binary matrix, calculate the cosine similarity between the question we raised and other four origin types of question, get the question type that has the maximum cosine number.
-Question Processing:
-•	Bankrupt Question: first we extract the month and year from the question and then set up query for search in Elasticsearch document: 
+
+# Question Processing:
+
+ - Bankrupt Question: first we extract the month and year from the question and then set up query for search in Elasticsearch document: 
 Must have any of (bankrupt bankruptcy Bankrupt Bankruptcy) and Month and Year 
 Should have (article date has the month and year) and any of ['collapse', 'declared', 'protection', 'liquidat', 'failure', 'Chapter 11']
 The “should” requirement is to improve the probability of correct answers. Since some of companies are rarely mentioned in the 730 articles.
