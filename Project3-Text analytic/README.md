@@ -1,3 +1,19 @@
+# Problem Statement:
+Develop a question and answer system capable of answering the following questions:
+
+ - Which companies went bankrupt in month X of year Y?
+ 
+    o The answer should be the name of the companies.
+    
+ - What affects GDP? What percentage of drop or increase is associated with this property?
+ 
+    o It should work in the following way: What affects GDP? Answer: unemployment, interest rates, … Then the user asks the follow-up question: What percentage of drop or
+increase is associated with Z? (Here Z can be: unemployment or interest rates or any other property returned.)
+
+ -  Who is the CEO of company X?
+ 
+    o The answer should be the first and last name of the CEO.
+ 
 # Executive summary:
 In this case, we have three tasks that extract all company names percentage and CEO names. For each task we have different preprocessing and feature selections, but for the NER we choose the Neural network algorithm and use random over sample method to address the imbalance of samples in my dataset. Also, we analysis the feature we choose by MII and performance of my model by confusion matrix. 
 
