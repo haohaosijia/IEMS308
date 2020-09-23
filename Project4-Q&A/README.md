@@ -1,3 +1,19 @@
+# Problem Statement:
+Develop a question and answer system capable of answering the following questions:
+
+ - Which companies went bankrupt in month X of year Y?
+ 
+    o The answer should be the name of the companies.
+    
+ - What affects GDP? What percentage of drop or increase is associated with this property?
+ 
+    o It should work in the following way: What affects GDP? Answer: unemployment, interest rates, … Then the user asks the follow-up question: What percentage of drop or
+increase is associated with Z? (Here Z can be: unemployment or interest rates or any other property returned.)
+
+ -  Who is the CEO of company X?
+ 
+    o The answer should be the first and last name of the CEO.
+  
 # Executive summary:
 
 In this case, we divide three required questions in four different questions as “Which companies went bankrupt in month X of year Y?”, “What affects GDP?”, “What percentage of drop or increase is associated with this property?” and “Who is the CEO of company X?”. Different kinds of questions have different preprocess steps.
