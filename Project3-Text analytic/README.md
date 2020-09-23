@@ -1,18 +1,14 @@
 # Problem Statement:
-Develop a question and answer system capable of answering the following questions:
+BusinessInsider is a portal for business news. The scraped articles for years 2013 and 2014 are available at https://www.dropbox.com/s/g43k1qzhpx3bwf5/2013.zip?dl=0 and
+https://www.dropbox.com/s/siuc4loq2fxsr5y/2014.zip?dl=0. There is one file per day.
 
- - Which companies went bankrupt in month X of year Y?
- 
-    o The answer should be the name of the companies.
-    
- - What affects GDP? What percentage of drop or increase is associated with this property?
- 
-    o It should work in the following way: What affects GDP? Answer: unemployment, interest rates, … Then the user asks the follow-up question: What percentage of drop or
-increase is associated with Z? (Here Z can be: unemployment or interest rates or any other property returned.)
+perform the following tasks:
 
- -  Who is the CEO of company X?
+ - Extract all company names from the files.
  
-    o The answer should be the first and last name of the CEO.
+ - Extract all numbers involving percentages. Note that sometimes the corpus has “0.5%” and other times “point five percent.” (and there might be other forms)
+ 
+ - Extract all names of CEO’s.
  
 # Executive summary:
 In this case, we have three tasks that extract all company names percentage and CEO names. For each task we have different preprocessing and feature selections, but for the NER we choose the Neural network algorithm and use random over sample method to address the imbalance of samples in my dataset. Also, we analysis the feature we choose by MII and performance of my model by confusion matrix. 
